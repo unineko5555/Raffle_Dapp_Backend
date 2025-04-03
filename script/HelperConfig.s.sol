@@ -10,7 +10,7 @@ import {Script} from "forge-std/Script.sol";
 contract HelperConfig is Script {
     struct NetworkConfig {
         address vrfCoordinatorV2;
-        uint64 subscriptionId;
+        uint256 subscriptionId;
         bytes32 keyHash;
         uint32 callbackGasLimit;
         uint256 entranceFee;
@@ -27,13 +27,9 @@ contract HelperConfig is Script {
     constructor() {
         if (block.chainid == 11155111) {
             activeNetworkConfig = getSepoliaConfig();
-        } else if (block.chainid == 80001) {
-            activeNetworkConfig = getPolygonMumbaiConfig();
-        } else if (block.chainid == 421613) {
+        } else if (block.chainid == 421614) {
             activeNetworkConfig = getArbitrumSepoliaConfig();
-        } else if (block.chainid == 420) {
-            activeNetworkConfig = getOptimismGoerliConfig();
-        } else if (block.chainid == 84531) {
+        } else if (block.chainid == 84532) {
             activeNetworkConfig = getBaseSepoliaConfig();
         } else {
             activeNetworkConfig = getOrCreateAnvilEthConfig();
@@ -45,28 +41,13 @@ contract HelperConfig is Script {
      */
     function getSepoliaConfig() public pure returns (NetworkConfig memory) {
         return NetworkConfig({
-            vrfCoordinatorV2: 0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625,
-            subscriptionId: 0,  // 適切なIDに置き換える必要あり
-            keyHash: 0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c,
+            vrfCoordinatorV2: 0x9DdfaCa8183c41ad55329BdeeD9F6A8d53168B1B, // VRF 2.5のコーディネーターアドレス
+            subscriptionId: 35215710747108285885424679702400045098207236400821432776421763953481952749017,
+            keyHash: 0x787d74caea10b2b357790d5b5247c2f63d1d91572a9846f780606e4d953677ae,
             callbackGasLimit: 500000,
             entranceFee: 10 * 1e6, // 10 USDC (6 decimals)
-            usdcAddress: 0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238, // Sepolia USDC
+            usdcAddress: 0x74ce1e12998fB861A612CD6C65244f8620e2937A, // Sepolia USDC
             ccipRouter: 0x0BF3dE8c5D3e8A2B34D2BEeB17ABfCeBaf363A59 // Sepolia CCIP Router
-        });
-    }
-
-    /**
-     * @notice Polygon Mumbai設定を取得する関数
-     */
-    function getPolygonMumbaiConfig() public pure returns (NetworkConfig memory) {
-        return NetworkConfig({
-            vrfCoordinatorV2: 0x7a1BaC17Ccc5b313516C5E16fb24f7659aA5ebed,
-            subscriptionId: 0,  // 適切なIDに置き換える必要あり
-            keyHash: 0x4b09e658ed251bcafeebbc69400383d49f344ace09b9576fe248bb02c003fe9f,
-            callbackGasLimit: 500000,
-            entranceFee: 10 * 1e6, // 10 USDC (6 decimals)
-            usdcAddress: 0xe11A86849d99F524cAc3E7A0Ec1241828e332C62, // Mumbai USDC
-            ccipRouter: 0x70499c328e1E2a3c41108bd3730F6670a44595d1 // Mumbai CCIP Router
         });
     }
 
@@ -75,9 +56,9 @@ contract HelperConfig is Script {
      */
     function getArbitrumSepoliaConfig() public pure returns (NetworkConfig memory) {
         return NetworkConfig({
-            vrfCoordinatorV2: 0x50d47e4142598E3411aA864e08a44284e471AC6b,
-            subscriptionId: 0,  // 適切なIDに置き換える必要あり
-            keyHash: 0x027f94ff1465b3525f9fc03e7775f2e5fdecb70rarb974f61ffce645b6f115ae,
+            vrfCoordinatorV2: 0x5CE8D5A2BC84beb22a398CCA51996F7930313D61, // Arbitrum Sepolia VRF 2.5
+            subscriptionId: 101240342784025722467677436226156457361476948824878688464903340927284469428368, // 実際のサブスクリプションIDに更新する必要あり
+            keyHash: 0x1770bdc7eec7771f7ba4ffd640f34260d7f095b79c92d34a5b2551d6f6cfd2be,
             callbackGasLimit: 500000,
             entranceFee: 10 * 1e6, // 10 USDC (6 decimals)
             usdcAddress: 0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d, // Arbitrum Sepolia USDC
@@ -86,32 +67,17 @@ contract HelperConfig is Script {
     }
 
     /**
-     * @notice Optimism Goerli設定を取得する関数
-     */
-    function getOptimismGoerliConfig() public pure returns (NetworkConfig memory) {
-        return NetworkConfig({
-            vrfCoordinatorV2: 0xB9c51146a152648195F5e2C0A2CDA6B8e306138B,
-            subscriptionId: 0,  // 適切なIDに置き換える必要あり
-            keyHash: 0x252bc3f4ba2089c44a7789fd17f30e0c4aab9c2798271a1dca379f0a8b5048ce,
-            callbackGasLimit: 500000,
-            entranceFee: 10 * 1e6, // 10 USDC (6 decimals)
-            usdcAddress: 0x7E07E15D2a87A24492740D16f5bdF58c16db0c4E, // Optimism Goerli USDC
-            ccipRouter: 0xEB52E9Ae4A9Fb37172978642d4C141ef53876f26 // Optimism Goerli CCIP Router
-        });
-    }
-
-    /**
      * @notice Base Sepolia設定を取得する関数
      */
     function getBaseSepoliaConfig() public pure returns (NetworkConfig memory) {
         return NetworkConfig({
-            vrfCoordinatorV2: 0xeb3F5079798A346F91F429d23D9aceb22Fc2F369, // Base Sepolia
-            subscriptionId: 0,  // 適切なIDに置き換える必要あり
-            keyHash: 0x8c7bdabb86a2870d9f72517b1c861c05e5afda42e51e5fed9a53bd33c0f0a84c,
+            vrfCoordinatorV2: 0x5C210eF41CD1a72de73bF76eC39637bB0d3d7BEE, // Base Sepolia VRF 2.5
+            subscriptionId: 33458206399445572067715640330168096614526430692290839248425322519759385655642, // 実際のサブスクリプションIDに更新する必要あり
+            keyHash: 0x9e1344a1247c8a1785d0a4681a27152bffdb43666ae5bf7d14d24a5efd44bf71,
             callbackGasLimit: 500000,
             entranceFee: 10 * 1e6, // 10 USDC (6 decimals)
-            usdcAddress: 0xF175520C52418dfE19C8098071a252da48Cd1C19, // Base Sepolia USDC
-            ccipRouter: 0xA8C0c11bf64AF62CDCA6f93D3769B88BdD7cb93D // Base Sepolia CCIP Router
+            usdcAddress: 0x036CbD53842c5426634e7929541eC2318f3dCF7e, // Base Sepolia USDC
+            ccipRouter: 0xD3b06cEbF099CE7DA4AcCf578aaebFDBd6e88a93 // Base Sepolia CCIP Router
         });
     }
 
@@ -128,7 +94,7 @@ contract HelperConfig is Script {
         vm.startBroadcast();
 
         // 仮のVRFコーディネーターをデプロイ
-        MockVRFCoordinatorV2 vrfCoordinatorV2Mock = new MockVRFCoordinatorV2();
+        MockVRFCoordinatorV2_5 vrfCoordinatorV2Mock = new MockVRFCoordinatorV2_5();
         
         // 仮のUSDCトークンをデプロイ
         MockERC20 mockUsdc = new MockERC20("USD Coin", "USDC", 6);
@@ -157,10 +123,10 @@ contract HelperConfig is Script {
 }
 
 /**
- * @title MockVRFCoordinatorV2
- * @notice テスト用のVRFコーディネーターモック
+ * @title MockVRFCoordinatorV2_5
+ * @notice テスト用のVRFコーディネーターモック (VRF 2.5対応)
  */
-contract MockVRFCoordinatorV2 {
+contract MockVRFCoordinatorV2_5 {
     uint96 public BASE_FEE = 0.25 ether; // 0.25 LINK
     uint96 public GAS_PRICE_LINK = 1e9; // 1 gwei LINK
 
@@ -229,10 +195,15 @@ contract MockVRFCoordinatorV2 {
 
     // テスト用のランダムワード生成
     function fulfillRandomWords(uint256 requestId, address callback) external {
-        uint256[] memory randomWords = new uint256[](1);
+        // 2つのランダムワードを生成（ジャックポット判定用に2つ必要）
+        uint256[] memory randomWords = new uint256[](2);
         randomWords[0] = uint256(keccak256(abi.encode(requestId, block.timestamp)));
+        randomWords[1] = uint256(keccak256(abi.encode(requestId, block.timestamp, blockhash(block.number))));
         
-        (bool success, ) = callback.call(abi.encodeWithSignature("rawFulfillRandomWords(uint256,uint256[])", requestId, randomWords));
+        // rawFulfillRandomWords関数を呼び出す
+        (bool success, ) = callback.call(
+            abi.encodeWithSignature("rawFulfillRandomWords(uint256,uint256[])", requestId, randomWords)
+        );
         require(success, "Callback failed");
         
         emit RandomWordsFulfilled(requestId, randomWords, 0);
@@ -316,7 +287,7 @@ contract MockCCIPRouter {
 
     event MessageSent(
         bytes32 indexed messageId,
-        uint64 indexed destinationChainSelector,
+        uint256 indexed destinationChainSelector,
         address sender,
         bytes receiver,
         bytes data
@@ -326,7 +297,7 @@ contract MockCCIPRouter {
     uint256 private messageIdCounter;
 
     function getFee(
-        uint64 destinationChainSelector,
+        uint256 destinationChainSelector,
         EVM2AnyMessage memory message
     ) external view returns (uint256) {
         // 簡略化のためハードコードした手数料を返す
@@ -334,7 +305,7 @@ contract MockCCIPRouter {
     }
 
     function ccipSend(
-        uint64 destinationChainSelector,
+        uint256 destinationChainSelector,
         EVM2AnyMessage calldata message
     ) external payable returns (bytes32) {
         // メッセージIDを生成

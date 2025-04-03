@@ -24,12 +24,7 @@ interface IRaffle {
      */
     function enterRaffle() external;
 
-    /**
-     * @dev Chainlink VRFからの乱数を受け取るためのコールバック関数
-     * @param requestId VRFのリクエストID
-     * @param randomWords 生成された乱数配列
-     */
-    function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords) external;
+
 
     /**
      * @dev Chainlink Automationで呼び出される関数
@@ -83,7 +78,7 @@ interface IRaffle {
      * @param isJackpot ジャックポット当選かどうか
      */
     function sendCrossChainMessage(
-        uint64 destinationChainSelector,
+        uint256 destinationChainSelector,
         address winner,
         uint256 prize,
         bool isJackpot
@@ -116,5 +111,12 @@ interface IRaffle {
      * @param destinationChainSelector 送信先チェーンのセレクタ
      * @param messageId CCIPのメッセージID
      */
-    event CrossChainMessageSent(uint64 indexed destinationChainSelector, bytes32 indexed messageId);
+    event CrossChainMessageSent(uint256 indexed destinationChainSelector, bytes32 indexed messageId);
+
+    /**
+     * @dev ラッフルから参加を取り消した時に発火するイベント
+     * @param player 参加を取り消したプレイヤーのアドレス
+     * @param refundAmount 返金額
+     */
+    event RaffleExit(address indexed player, uint256 refundAmount);
 }

@@ -18,14 +18,14 @@ contract RaffleTest is Test {
     event RaffleEnter(address indexed player, uint256 entranceFee);
     event WinnerPicked(address indexed winner, uint256 prize, bool isJackpot);
     event RaffleStateChanged(IRaffle.RaffleState newState);
-    event CrossChainMessageSent(uint64 indexed destinationChainSelector, bytes32 indexed messageId);
+    event CrossChainMessageSent(uint256 indexed destinationChainSelector, bytes32 indexed messageId);
 
     // テスト用変数
     RaffleImplementation public raffleImplementation;
     RaffleProxy public raffleProxy;
     HelperConfig public helperConfig;
     address public vrfCoordinatorV2;
-    uint64 public subscriptionId;
+    uint256 public subscriptionId;
     bytes32 public keyHash;
     uint32 public callbackGasLimit;
     uint256 public entranceFee;
@@ -55,7 +55,7 @@ contract RaffleTest is Test {
         ) = helperConfig.activeNetworkConfig();
 
         // プロキシを通してラッフルコントラクトにアクセス
-        RaffleImplementation raffle = RaffleImplementation(address(raffleProxy));
+        RaffleImplementation raffle = RaffleImplementation(payable(address(raffleProxy)));
 
         // テストユーザーにETHとUSDCを付与
         vm.deal(USER, STARTING_USER_BALANCE);
@@ -71,6 +71,7 @@ contract RaffleTest is Test {
     /**
      * @notice コンストラクタが正しく初期化されていることを確認するテスト
      */
+     //test pass
     function testRaffleInitializesInOpenState() public view {
         IRaffle raffle = IRaffle(address(raffleProxy));
         IRaffle.RaffleState raffleState = raffle.getRaffleState();
@@ -80,6 +81,7 @@ contract RaffleTest is Test {
     /**
      * @notice エントリー料金が正しいことを確認するテスト
      */
+     //test pass
     function testEntranceFeeIsCorrect() public view {
         IRaffle raffle = IRaffle(address(raffleProxy));
         uint256 fee = raffle.getEntranceFee();
@@ -89,6 +91,7 @@ contract RaffleTest is Test {
     /**
      * @notice ラッフル参加が正しく機能することを確認するテスト
      */
+     //test pass
     function testCanEnterRaffle() public {
         IRaffle raffle = IRaffle(address(raffleProxy));
         IERC20 usdc = IERC20(usdcAddress);
@@ -111,6 +114,7 @@ contract RaffleTest is Test {
     /**
      * @notice ラッフルの状態がOPEN以外の場合に参加できないことを確認するテスト
      */
+     //test pass
     function testCantEnterWhenRaffleIsNotOpen() public {
         IRaffle raffle = IRaffle(address(raffleProxy));
         IERC20 usdc = IERC20(usdcAddress);
@@ -153,6 +157,7 @@ contract RaffleTest is Test {
     /**
      * @notice checkUpkeepが適切な条件を満たした場合のみtrueを返すことを確認するテスト
      */
+     //test pass
     function testCheckUpkeepReturnsFalseWhenConditionsAreNotMet() public {
         IRaffle raffle = IRaffle(address(raffleProxy));
         
@@ -194,6 +199,7 @@ contract RaffleTest is Test {
     /**
      * @notice performUpkeepが適切に機能することを確認するテスト
      */
+     //test pass
     function testPerformUpkeep() public {
         IRaffle raffle = IRaffle(address(raffleProxy));
         IERC20 usdc = IERC20(usdcAddress);
@@ -232,6 +238,7 @@ contract RaffleTest is Test {
     /**
      * @notice fulfillRandomWordsが正しく機能することを確認するテスト
      */
+     //chainlinkVRFの設定が必要
     function testFulfillRandomWords() public {
         IRaffle raffle = IRaffle(address(raffleProxy));
         IERC20 usdc = IERC20(usdcAddress);
@@ -288,11 +295,12 @@ contract RaffleTest is Test {
     /**
      * @notice クロスチェーンメッセージ送信機能をテスト
      */
+     //CCIPの設定が必要
     function testSendCrossChainMessage() public {
-        RaffleImplementation raffle = RaffleImplementation(address(raffleProxy));
+        RaffleImplementation raffle = RaffleImplementation(payable(address(raffleProxy)));
         
         // オーナーとしてメッセージを送信
-        uint64 destinationChainSelector = 1234;
+        uint256 destinationChainSelector = 1234;
         address winner = USER;
         uint256 prize = 100 * 1e6; // 100 USDC
         bool isJackpot = false;
@@ -313,7 +321,7 @@ contract RaffleTest is Test {
      * @notice オーナーだけが特定の操作を実行できることを確認するテスト
      */
     function testOnlyOwnerCanWithdraw() public {
-        RaffleImplementation raffle = RaffleImplementation(address(raffleProxy));
+        RaffleImplementation raffle = RaffleImplementation(payable(address(raffleProxy)));
         
         // コントラクトにETHを送信
         vm.deal(address(raffleProxy), 1 ether);
@@ -337,18 +345,11 @@ contract RaffleTest is Test {
     /**
      * @notice プロキシアップグレードが正しく機能することを確認するテスト
      */
+     //test pass
     function testProxyUpgrade() public {
         // 新しい実装コントラクトをデプロイ
         vm.startBroadcast();
-        RaffleImplementation newImplementation = new RaffleImplementation(
-            vrfCoordinatorV2,
-            subscriptionId,
-            keyHash,
-            callbackGasLimit,
-            entranceFee,
-            usdcAddress,
-            ccipRouter
-        );
+        RaffleImplementation newImplementation = new RaffleImplementation();
         vm.stopBroadcast();
         
         // 現在の実装を取得
@@ -367,6 +368,7 @@ contract RaffleTest is Test {
     /**
      * @notice ジャックポットシステムが正しく機能することを確認するテスト
      */
+     //test pass
     function testJackpotSystem() public {
         IRaffle raffle = IRaffle(address(raffleProxy));
         IERC20 usdc = IERC20(usdcAddress);
@@ -552,12 +554,26 @@ contract MockVRFCoordinatorV2 {
 
     // テスト用のランダムワード生成
     function fulfillRandomWords(uint256 requestId, address callback) external {
+        // 修正：テストではコントラクトが2つのランダム値を予期しているので、配列に2つの値を特定
         uint256[] memory randomWords = new uint256[](2);
         randomWords[0] = uint256(keccak256(abi.encode(requestId, block.timestamp)));
         randomWords[1] = uint256(keccak256(abi.encode(requestId, block.timestamp, blockhash(block.number))));
         
-        (bool success, ) = callback.call(abi.encodeWithSignature("rawFulfillRandomWords(uint256,uint256[])", requestId, randomWords));
-        require(success, "Callback failed");
+        // 修正: より単純な方法を試す
+        bytes memory payload = abi.encodeWithSignature("rawFulfillRandomWords(uint256,uint256[])", requestId, randomWords);
+        (bool success, bytes memory returnData) = callback.call(payload);
+        
+        if (!success) {
+            if (returnData.length > 0) {
+                // エラーメッセージを取得して出力
+                assembly {
+                    let returnDataSize := mload(returnData)
+                    revert(add(32, returnData), returnDataSize)
+                }
+            } else {
+                revert("Unknown error in callback");
+            }
+        }
         
         emit RandomWordsFulfilled(requestId, randomWords, 0);
     }
